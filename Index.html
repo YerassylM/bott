@@ -1,1 +1,51 @@
-строка
+<!DOCTYPE html>
+<html lang="ru">    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Web App Auth</title>
+</head>
+<body>
+    <h1>Авторизация через Telegram</h1>
+    <div id="user-info"></div>
+
+    <script>
+        // Получаем данные из URL
+        function getTelegramUserData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                id: urlParams.get("id"),
+                first_name: urlParams.get("first_name"),
+                last_name: urlParams.get("last_name"),
+                username: urlParams.get("username"),
+                photo_url: urlParams.get("photo_url"),
+                auth_date: urlParams.get("auth_date"),
+                hash: urlParams.get("hash")
+            };
+        }
+
+        // Отправляем данные на сервер
+        async function sendUserDataToServer(user) {
+            try {
+                const response = await fetch("http://localhost:5000/auth", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(user)
+                });
+
+                const result = await response.json();
+                document.getElementById("user-info").innerHTML = `<p>${result.message}</p>`;
+            } catch (error) {
+                console.error("Ошибка отправки данных:", error);
+                document.getElementById("user-info").innerHTML = `<p>Ошибка соединения</p>`;
+            }
+        }
+
+        // Получаем и отправляем данные
+        const userData = getTelegramUserData();
+        sendUserDataToServer(userData);
+    </script>
+</body>
+</html>
